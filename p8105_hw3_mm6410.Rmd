@@ -1,0 +1,11 @@
+---
+title: "P8105 HW3 mm6410"
+author: "Mahdi Maktabi"
+date: "2024-10-11"
+output: github_document
+---
+
+```{r}
+library(tidyverse)
+```
+
