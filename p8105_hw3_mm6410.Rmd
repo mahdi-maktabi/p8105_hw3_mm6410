@@ -60,3 +60,8 @@ accel_tidy_df =
   filter(age > 21, !is.na(sex), !is.na(age), !is.na(bmi), !is.na(education))
 ```
 
+
+```{r}
+
+```
+
