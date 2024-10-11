@@ -5,7 +5,58 @@ date: "2024-10-11"
 output: github_document
 ---
 
-```{r}
+```{r, message=FALSE}
 library(tidyverse)
+library(dplyr)
+library(ggridges)
+```
+
+## Problem 1
+
+
+
+
+
+## Problem 2
+
+Importing and cleaning *NHAMES Study* participant demographic and accelerometer data.
+
+```{r}
+demographics_df = 
+  read_csv(
+    file = "./data/nhanes_covar.csv",
+    na = c("NA", ".", ""),
+    skip = 4) |> 
+  janitor::clean_names() |> 
+  mutate(
+    sex =
+      case_match(
+        sex,
+        1 ~ "male",
+        2 ~ "female"),
+    sex = as.factor(sex))
+
+accel_df =
+  read_csv(
+    file = "./data/nhanes_accel.csv") |> 
+  janitor::clean_names() |> 
+  pivot_longer(
+    min1:min1440,
+    names_to = "min",
+    names_prefix = "min",
+    values_to = "min_value") |> 
+  mutate(min = as.numeric(min))
+```
+
+Now I am merging the two datasets and excluded:
+
+* Participants less than 21 years old
+* Participants missing demographic data
+
+```{r}
+accel_tidy_df =
+  bind_rows(demographics_df, accel_df) |> 
+  janitor::clean_names() |>
+  filter(age > 21, !is.na(sex), !is.na(age), !is.na(bmi), !is.na(education))
 ```
 
