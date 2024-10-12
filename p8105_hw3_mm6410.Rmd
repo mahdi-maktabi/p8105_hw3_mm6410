@@ -215,7 +215,7 @@ citibike_df =
   janitor::clean_names()
 ```
 
-The combined dataset shows that there are 99,485 rows and 9 variables. The additional variables added during merging process was month and year so I can identify which original dataset the data came from.
+The combined dataset shows that there are 99,485 rows and 9 variables. The additional variables added during the merging process was `month` and `year` so I can identify which original dataset the data came from.
 
 ```{r}
 citibike_df |> 
@@ -227,3 +227,64 @@ citibike_df |>
   knitr::kable()
 ```
 
+The table shows that both casual and member riders increase overtime. Casual riders increase at a higher rate but there are a lot more Citi Bike member riders. 
+
+
+The code and table below will show: **The Top 5 Starting Stations for July 2024**
+
+```{r}
+citibike_df |> 
+  group_by(start_station_name) |> 
+  filter(month == "July", year == 2024) |> 
+  summarize(total_rides = n(), .groups = 'drop') |> 
+  arrange(desc(total_rides)) |> 
+  slice_max(total_rides, n = 5) |> 
+  knitr::kable()
+```
+
+
+I will now make a plot that investigates the effect of the day of the week, month, and year on median ride duration. 
+
+```{r}
+citibike_df |> 
+  group_by(weekdays, month, year) |> 
+  summarize(med_duration = median(duration, na.rm = TRUE), .groups = 'drop') |> 
+  ggplot(
+    aes(x = weekdays, y = med_duration, color = interaction(month, year), 
+        group = interaction(month, year))) + 
+  geom_line() + geom_point() +
+  theme(legend.position = "bottom") +
+  labs(
+    x = "weekdays",
+    y = "Median ride duration (min)",
+    color = "Month and Year")
+```
+
+From the graph we can see that:
+
+* July 2020 had the highest median ride duration.
+* Median ride duration (minutes) was highest on Saturday and Sunday across all Months and Years.
+* January for both 2020 and 2024 had lower median ride duration compared to July. This makes sense because it is colder in January so we expect people to not have high ride duration. 
+
+```{r}
+citibike_df |> 
+  filter(year == 2024) |> 
+  ggplot(aes(x = month, y = duration, fill = member_casual)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.6) +
+  facet_wrap(~ rideable_type) +
+  theme(legend.position = "bottom") +
+  labs(
+    x = "Month (2024)",
+    y = "ride_duration (min)",
+    fill = "Citi Bike Membership")
+```
+
+Based on the boxplot:
+
+* Classic Bikes
+  * The distribution is similar between January and July for both casual and member riders.
+  * Casual riders are riding for a longer duration than member riders.
+* Electric Bikes
+  * The distribution is similar between January and July for both casual and member riders. Casual riders are riding for a slightly longer duration in July.
+  * Casual riders are riding for a slightly shorter duration compared to classic bikes.
+  * Member riders are riding for the same duration between January and July as well as between classic and electric bikes. 
