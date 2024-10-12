@@ -140,6 +140,30 @@ Based off this graph, we can see that:
 Now I will show the 24-hour activity time courses for each education level.
 
 ```{r}
-
+accel_tidy_df |> 
+  group_by(seqn, sex, education, min) |> 
+  summarize(total_activity = sum(min_value, na.rm = TRUE), .groups = 'drop') |> 
+  mutate(
+    education = case_when(
+      education == 1 ~ "less than high school",
+      education == 2 ~ "high school equivalent",
+      education == 3 ~ "more than high school")) |> 
+  ggplot(aes(x = min, y = total_activity, color = sex)) +
+  geom_line() +
+  facet_wrap(~ education) +
+  theme(legend.position = "bottom") +
+  labs(
+    x = "Minute of the day (min)",
+    y = "Total activity (min)",
+    color = "sex")
 ```
+
+Based on the graph, we can see that:
+
+* *Less than high school*: total activity throughout the day remains consistent between sexes. Males have low levels of activity present at earlier times of the day compared to females.
+* *High school equivalent*: total activity throughout the day is consistent between sexes.
+* *More than high school*: For males, activity increases at around 8am (500 minutes) and peaks extremely high around 8pm (1200 minutes). For females, we see that activity also increases around 8am (500 minutes) but decreases for the rest of the day.
+
+
+## Problem 3
 
