@@ -22,7 +22,7 @@ library(ggplot2)
 
 Importing and cleaning *NHAMES Study* participant demographic and accelerometer data.
 
-```{r}
+```{r, message = FALSE}
 demographics_df = 
   read_csv(
     file = "./data/nhanes_covar.csv",
@@ -110,7 +110,7 @@ Based on the graphs, we can see that:
 
 Now I will create a total activity variable:
 
-```{r}
+```{r, message=FALSE}
 accel_tidy_df |> 
   group_by(seqn, sex, age, education) |> 
   summarize(total_activity = sum(min_value, na.rm = TRUE), .groups = 'drop') |> 
