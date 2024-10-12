@@ -169,7 +169,7 @@ Based on the graph, we can see that:
 
 Importing and cleaning the *NYC Citi Bike* data from Jan 2020, Jul 2020, Jan 2024, and Jul 2024.
 
-```{r}
+```{r, message=FALSE}
 citi_jan_2020_df =
   read_csv(file = "./citibike/Jan 2020 Citi.csv", na = c("NA", ".", "")) |> 
   janitor::clean_names() |> 
@@ -201,7 +201,7 @@ citi_jul_2024_df =
   read_csv(file = "./citibike/July 2024 Citi.csv", na = c("NA", ".", "")) |> 
   janitor::clean_names() |> 
   mutate(
-    month = "January",
+    month = "July",
     year = "2024",
     year = as.numeric(year)) |> 
   select(ride_id, month, year, everything())
@@ -213,5 +213,20 @@ Now combine into one dataset.
 citibike_df =
   bind_rows(citi_jan_2020_df, citi_jul_2020_df, citi_jan_2024_df, citi_jul_2024_df) |>
   janitor::clean_names()
+```
+
+
+
+
+
+
+```{r}
+citibike_df |> 
+  group_by(year, month, member_casual) |> 
+  summarize(total_rides = n(), .groups = 'drop') |> 
+  pivot_wider(
+    names_from = member_casual,
+    values_from = total_rides) |> 
+  knitr::kable()
 ```
 
