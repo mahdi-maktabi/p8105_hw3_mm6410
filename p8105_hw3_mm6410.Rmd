@@ -5,7 +5,7 @@ date: "2024-10-11"
 output: github_document
 ---
 
-```{r, message=FALSE}
+```{r load_libraries, message=FALSE}
 library(tidyverse)
 library(dplyr)
 library(ggridges)
@@ -14,8 +14,41 @@ library(ggplot2)
 
 ## Problem 1
 
+Load in `NY NOAA` data and initial exploration.
 
+```{r}
+library(p8105.datasets)
+data("ny_noaa")
+```
 
+```{r}
+summary(ny_noaa)
+str(ny_noaa)
+
+ny_noaa |> 
+  summarize(across(everything(), ~sum(is.na(.))))
+
+ny_noaa |> 
+  count(snow) |> 
+  arrange(desc(n))
+```
+
+Looking at the `NY NOAA` data, we can see that there are 2,595,176 observations and 7 variables. The variables include: id, date, prcp, snow, snwd, tmax, and tmin. 
+
+We can also see from the `summarize` function that there is a lot of missing data in each column. Similarly, the most common observed value for snowfall is zero. This makes sense because the data shows snowfall accumulation throughout the year but it rarely snows in NY.
+
+The code below will begin cleaning the data by separating the dates into year, month, and day columns. 
+
+```{r}
+ny_noaa |> 
+  separate(
+    date, into = c("year", "month", "day"), 
+    convert = TRUE) |> 
+  mutate(
+    tmax = as.numeric(tmax),
+    tmin = as.numeric(tmin)
+  )
+```
 
 
 ## Problem 2
