@@ -10,6 +10,7 @@ library(tidyverse)
 library(dplyr)
 library(ggridges)
 library(ggplot2)
+library(patchwork)
 ```
 
 ## Problem 1
@@ -40,7 +41,7 @@ We can also see from the `summarize` function that there is a lot of missing dat
 The code below will begin cleaning the data by separating the dates into year, month, and day columns. 
 
 ```{r}
-ny_noaa |> 
+ny_noaa = ny_noaa |> 
   separate(
     date, into = c("year", "month", "day"), 
     convert = TRUE) |> 
@@ -49,6 +50,44 @@ ny_noaa |>
     tmin = as.numeric(tmin)
   )
 ```
+
+Making a two-panel plot: 
+
+```{r}
+ny_noaa |> 
+  group_by(id, year, month) |> 
+  filter(month %in% c(1, 7)) |> 
+  summarize(mean_tmax = mean(tmax, na.rm = TRUE, color = id)) |>  
+  ggplot(aes(x = year, y = mean_tmax, group = id)) + 
+  geom_point() + 
+  geom_path() +
+  facet_grid(~month)
+```
+
+Based on the graph, we can see that the average max temperature in January is a lot lower than July. In both figures, there are some outliers that fall below the other data points. For example, in January, we see that temperatures drop very low around 1980 and 2005. 
+
+
+The code below will create a hex plot showing `tmin` vs `tmax` and the distribution of snowfall values greater than 0 and less than 100 (separated by year). 
+
+***Note***: I did not know how to do this so I used the homework answers that were posted.
+
+```{r}
+hex = 
+  ny_noaa %>% 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_hex()
+
+ridge = 
+  ny_noaa %>% 
+  filter(snow < 100, snow > 0) %>%
+  ggplot(aes(x = snow, y = as.factor(year))) + 
+  geom_density_ridges()
+
+hex + ridge
+```
+
+
+
 
 
 ## Problem 2
@@ -115,7 +154,7 @@ accel_tidy_df |>
 
 From the table, we can see that the distribution between each education category is fairly equal between male and females. There are slightly more males that have a high school equivalent education compared to females.
 
-The code below will now show the age distribtuions for men and women in each age category.
+The code below will now show the age distribtuions for men and women in each education category.
 
 ```{r}
 accel_tidy_df |> 
@@ -136,7 +175,7 @@ accel_tidy_df |>
 
 Based on the graphs, we can see that:
 
-* *Less than high school*: The distribtuion based on age are similar between sexes.
+* *Less than high school*: The distribution based on age are similar between sexes.
 * *High school equivalent*: There are more older females than males and the distribution of females is slightly left-skewed.
 * *More than high school*: The distribution between sexes is similar but there much more younger females than males. 
 
@@ -193,7 +232,7 @@ accel_tidy_df |>
 
 Based on the graph, we can see that:
 
-* *Less than high school*: total activity throughout the day remains consistent between sexes. Males have low levels of activity present at earlier times of the day compared to females.
+* *Less than high school*: total activity throughout the day remains consistent between sexes. Males have low levels of total activity present at earlier times of the day compared to females.
 * *High school equivalent*: total activity throughout the day is consistent between sexes.
 * *More than high school*: For males, activity increases at around 8am (500 minutes) and peaks extremely high around 8pm (1200 minutes). For females, we see that activity also increases around 8am (500 minutes) but decreases for the rest of the day.
 
@@ -303,7 +342,7 @@ From the graph we can see that:
 citibike_df |> 
   filter(year == 2024) |> 
   ggplot(aes(x = month, y = duration, fill = member_casual)) +
-  geom_boxplot(outlier.shape = NA, alpha = 0.6) +
+  geom_violin() +
   facet_wrap(~ rideable_type) +
   theme(legend.position = "bottom") +
   labs(
